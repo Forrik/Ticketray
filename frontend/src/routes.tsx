@@ -1,81 +1,25 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
-import { useAuth } from './context/AuthContext';
 
 // Импорт компонентов страниц
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import TicketsPage from "./pages/TicketsPage";
 import TicketDetailPage from "./pages/TicketDetailPage";
+import TicketCreatePage from "./pages/TicketCreatePage";
 import UsersPage from "./pages/UsersPage";
 
-// Используем существующие компоненты для защиты маршрутов
+// Импорт компонентов маршрутизации
+import PrivateRoute from "./components/PrivateRoute";
+import PublicRoute from "./components/PublicRoute";
+import RedirectByRole from "./components/RedirectByRole";
 
-// Компонент для защищенных маршрутов, доступных только вошедшим пользователям
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-  
-  if (!isAuthenticated) {
-    // Если пользователь не авторизован, перенаправляем на страницу входа
-    window.location.href = '/login';
-    return null;
-  }
-  
-  return <>{children}</>;
-};
+// Модуль для работы с правами администратора
+const AdminRoles = ['admin'];
 
-// Компонент для маршрутов, доступных только администраторам
-const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, user } = useAuth();
-  
-  if (!isAuthenticated) {
-    // Если пользователь не авторизован, перенаправляем на страницу входа
-    window.location.href = '/login';
-    return null;
-  }
-  
-  if (user?.role !== 'admin') {
-    // Если пользователь не администратор, перенаправляем на страницу тикетов
-    window.location.href = '/tickets';
-    return null;
-  }
-  
-  return <>{children}</>;
-};
-
-// Компонент для публичных маршрутов, доступных только неавторизованным пользователям
-const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, user } = useAuth();
-  
-  if (isAuthenticated && user) {
-    // Если пользователь авторизован, перенаправляем на соответствующую страницу
-    window.location.href = user.role === 'admin' ? '/users' : '/tickets';
-    return null;
-  }
-  
-  return <>{children}</>;
-};
-
-// Компонент для перенаправления на соответствующую страницу в зависимости от роли
-const RedirectByRole: React.FC = () => {
-  const { isAuthenticated, user } = useAuth();
-  
-  React.useEffect(() => {
-    if (!isAuthenticated) {
-      // Если пользователь не авторизован, перенаправляем на страницу входа
-      window.location.href = '/login';
-    } else if (user && user.role === 'admin') {
-      // Если пользователь - администратор, перенаправляем на страницу управления пользователями
-      window.location.href = '/users';
-    } else {
-      // Всех остальных направляем на страницу тикетов
-      window.location.href = '/tickets';
-    }
-  }, [isAuthenticated, user]);
-  
-  return null;
-};
+// Модуль для работы с правами пользователей и менеджеров
+const UserManagerRoles = ['user', 'manager'];
 
 // Основные маршруты приложения
 const AppRoutes: React.FC = () => {
@@ -91,29 +35,29 @@ const AppRoutes: React.FC = () => {
 
         {/* Маршруты для работы с тикетами - доступны всем зарегистрированным пользователям */}
         <Route path="/tickets" element={
-          <ProtectedRoute>
+          <PrivateRoute>
             <TicketsPage />
-          </ProtectedRoute>
+          </PrivateRoute>
         } />
         
         <Route path="/tickets/:id" element={
-          <ProtectedRoute>
+          <PrivateRoute>
             <TicketDetailPage />
-          </ProtectedRoute>
+          </PrivateRoute>
         } />
         
-        {/* Маршрут для создания новых тикетов */}
+        {/* Маршрут для создания новых тикетов - доступен только для пользователей и менеджеров */}
         <Route path="/tickets/new" element={
-          <ProtectedRoute>
-            <div className="p-8 text-center">Создание тикета (будет реализовано позже)</div>
-          </ProtectedRoute>
+          <PrivateRoute allowedRoles={UserManagerRoles}>
+            <TicketCreatePage />
+          </PrivateRoute>
         } />
         
         {/* Маршрут для управления пользователями - доступен только администраторам */}
         <Route path="/users" element={
-          <AdminRoute>
+          <PrivateRoute allowedRoles={AdminRoles}>
             <UsersPage />
-          </AdminRoute>
+          </PrivateRoute>
         } />
         
         {/* Маршрут по умолчанию - перенаправление на главную страницу */}

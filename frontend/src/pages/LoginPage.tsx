@@ -25,7 +25,22 @@ const LoginPage: React.FC = () => {
   }, [isAuthenticated, user]);
 
   // Функция редиректа в зависимости от роли
+  // Временно отключаем авторедирект для предотвращения циклической переадресации
   const redirectBasedOnRole = (role: string) => {
+    // Проверка на наличие флага в localStorage, чтобы избежать циклического редиректа
+    const redirectFlag = localStorage.getItem('isRedirecting');
+    if (redirectFlag === 'true') {
+      return;
+    }
+    
+    // Устанавливаем флаг для предотвращения циклического редиректа
+    localStorage.setItem('isRedirecting', 'true');
+    
+    // Сбрасываем флаг через 5 секунд
+    setTimeout(() => {
+      localStorage.removeItem('isRedirecting');
+    }, 5000);
+    
     if (role === 'admin') {
       window.location.href = '/users';
     } else {
