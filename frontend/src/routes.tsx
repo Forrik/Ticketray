@@ -4,12 +4,34 @@ import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
 import { useAuth } from './context/AuthContext';
 
+// Импорт компонентов страниц (они будут созданы позже)
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import TicketsPage from "./pages/TicketsPage";
+import TicketDetailPage from "./pages/TicketDetailPage";
+import UsersPage from "./pages/UsersPage";
+
 // Компонент для защищенных маршрутов, доступных только вошедшим пользователям
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
   
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
+// Компонент для маршрутов, доступных только администраторам
+const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated, user } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  if (user?.role !== 'admin') {
+    return <Navigate to="/" replace />;
   }
   
   return <>{children}</>;
@@ -22,13 +44,19 @@ const AppRoutes: React.FC = () => {
       <Route element={<Layout />}>
         {/* Публичные маршруты */}
         <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<div className="p-8 text-center">Страница входа (будет реализована позже)</div>} />
-        <Route path="/register" element={<div className="p-8 text-center">Страница регистрации (будет реализована позже)</div>} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
         {/* Защищенные маршруты */}
         <Route path="/tickets" element={
           <ProtectedRoute>
-            <div className="p-8 text-center">Список тикетов (будет реализован позже)</div>
+            <TicketsPage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/tickets/:id" element={
+          <ProtectedRoute>
+            <TicketDetailPage />
           </ProtectedRoute>
         } />
         
@@ -36,6 +64,13 @@ const AppRoutes: React.FC = () => {
           <ProtectedRoute>
             <div className="p-8 text-center">Создание тикета (будет реализовано позже)</div>
           </ProtectedRoute>
+        } />
+        
+        {/* Маршрут, доступный только для администраторов */}
+        <Route path="/users" element={
+          <AdminRoute>
+            <UsersPage />
+          </AdminRoute>
         } />
         
         {/* Маршрут по умолчанию - перенаправление на главную */}
