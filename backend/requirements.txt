@@ -3,3 +3,8 @@ djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.1
 django-cors-headers==4.3.1
 python-dotenv==1.0.1
+
+# Библиотеки для документации API
+coreapi==2.3.3
+pyyaml==6.0.1
+uritemplate==4.1.1

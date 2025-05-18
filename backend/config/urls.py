@@ -24,12 +24,12 @@ urlpatterns = [
     # API маршруты
     path('api/', include('tickets.urls')),
     
-    # JWT токены (основной механизм аутентификации)
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # Основная токенная аутентификация
+    path('api/token/', authtoken_views.obtain_auth_token, name='api-token-auth'),
     
-    # Дополнительная поддержка токенов аутентификации (по запросу)
-    path('api/auth-token/', authtoken_views.obtain_auth_token, name='api-token-auth'),
+    # JWT токены (опциональный механизм аутентификации)
+    path('api/jwt-token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/jwt-token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     
     # Маршруты для браузерного API
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),

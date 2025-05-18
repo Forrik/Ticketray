@@ -7,7 +7,9 @@ class CustomUserAdmin(UserAdmin):
     """
     Custom User Admin to display role field
     """
-    list_display = ('username', 'email', 'first_name', 'last_name', 'role', 'is_staff')
+    list_display = ('id', 'username', 'email', 'role', 'is_staff')
+    list_filter = ('role', 'is_active', 'is_staff')
+    search_fields = ('username', 'email')
     fieldsets = UserAdmin.fieldsets + (
         ('Custom Fields', {'fields': ('role',)}),
     )
@@ -20,9 +22,9 @@ class TicketAdmin(admin.ModelAdmin):
     """
     Admin configuration for Ticket model
     """
-    list_display = ('title', 'status', 'created_by', 'assigned_to', 'created_at', 'updated_at')
-    list_filter = ('status', 'created_at', 'updated_at')
-    search_fields = ('title', 'description')
+    list_display = ('id', 'title', 'status', 'created_by', 'assigned_to', 'created_at')
+    list_filter = ('status', 'assigned_to', 'created_at')
+    search_fields = ('title',)
     date_hierarchy = 'created_at'
 
 
@@ -30,8 +32,8 @@ class CommentAdmin(admin.ModelAdmin):
     """
     Admin configuration for Comment model
     """
-    list_display = ('author', 'ticket', 'created_at', 'content_preview')
-    list_filter = ('created_at',)
+    list_display = ('id', 'author', 'ticket', 'created_at', 'content_preview')
+    list_filter = ('author', 'created_at')
     search_fields = ('content',)
     
     def content_preview(self, obj):

@@ -145,10 +145,12 @@ CORS_ALLOWED_ORIGINS = [
 # REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',  # Токенная аутентификация (основная)
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  # JWT аутентификация (дополнительная)
+        'rest_framework.authentication.SessionAuthentication',  # Для удобства работы в браузере
     ),
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.IsAuthenticated',  # Все эндпоинты по умолчанию требуют аутентификации
     ],
 }
 

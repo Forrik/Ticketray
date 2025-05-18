@@ -23,7 +23,24 @@ class RegisterAPIView(generics.CreateAPIView):
     """
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny]  # Публичный доступ для регистрации
+    
+    def create(self, request, *args, **kwargs):
+        """
+        Создает нового пользователя и автоматически генерирует токен для него
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        
+        # Создаем токен для нового пользователя
+        from rest_framework.authtoken.models import Token
+        token, created = Token.objects.get_or_create(user=user)
+        
+        return Response({
+            'user': serializer.data,
+            'token': token.key
+        }, status=status.HTTP_201_CREATED)
 
 
 class UserListAPIView(generics.ListAPIView):
