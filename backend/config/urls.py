@@ -17,10 +17,20 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework.authtoken import views as authtoken_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # API маршруты
     path('api/', include('tickets.urls')),
+    
+    # JWT токены (основной механизм аутентификации)
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    
+    # Дополнительная поддержка токенов аутентификации (по запросу)
+    path('api/auth-token/', authtoken_views.obtain_auth_token, name='api-token-auth'),
+    
+    # Маршруты для браузерного API
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

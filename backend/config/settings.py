@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     
     # Third party apps
     'rest_framework',
+    'rest_framework.authtoken',  # Поддержка токенов авторизации
     'rest_framework_simplejwt',
     'corsheaders',
     

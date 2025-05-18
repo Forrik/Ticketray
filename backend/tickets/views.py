@@ -120,8 +120,16 @@ class CommentCreateAPIView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     
     def perform_create(self, serializer):
-        # Получаем тикет по ID из параметров запроса
+        # Проверяем, есть ли ticket_id в URL-параметрах
         ticket_id = self.kwargs.get('ticket_id')
+        
+        # Если ticket_id нет в URL, получаем его из данных запроса
+        if not ticket_id and 'ticket' in self.request.data:
+            ticket_id = self.request.data.get('ticket')
+        
+        if not ticket_id:
+            raise serializers.ValidationError({'ticket': 'Требуется указать ID тикета'})
+            
         ticket = get_object_or_404(Ticket, id=ticket_id)
         
         # Сохраняем комментарий с автором и тикетом
